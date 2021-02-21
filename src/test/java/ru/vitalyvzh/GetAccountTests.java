@@ -1,47 +1,19 @@
 package ru.vitalyvzh;
 
-import io.restassured.RestAssured;
 import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 
-public class GetAccountTests {
-
-    static Properties properties = new Properties();
-    static String token;
-    static String username;
-    static private Map<String, String> headers = new HashMap<>();
-
-    @BeforeAll
-    static void beforeAll() {
-
-        loadProperties();
-
-        token = properties.getProperty("token");
-        username = properties.getProperty("username");
-
-        headers.put("Authorization", token);
-        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
-        RestAssured.baseURI = properties.getProperty("base.url");
-    }
+public class GetAccountTests extends BaseTest {
 
     @DisplayName("Позитивная проверка авторизации")
     @Test
     void getAccountInfoPositiveTest () {
         given()
-                .headers(headers)
+                .headers("Authorization", token)
                 .log()
                 .all()
                 .when()
@@ -55,7 +27,7 @@ public class GetAccountTests {
     @Test
     void getAccountInfoPositiveWithManyChecksTest () {
         given()
-                .headers(headers)
+                .headers("Authorization", token)
                 .expect()
                 .body(CoreMatchers.containsString(username))
                 .body("success", is(true))
@@ -69,18 +41,10 @@ public class GetAccountTests {
     @Test
     void getAccountInfoNegativeTest () {
         given()
-                .headers(headers)
+                .headers("Authorization", token)
                 .when()
                 .get("/account/{username}", username)
                 .then()
                 .statusCode(400);
-    }
-
-    private static void loadProperties() {
-        try (InputStream inputStream = new FileInputStream("src/test/resources/application.properties")) {
-            properties.load(inputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
