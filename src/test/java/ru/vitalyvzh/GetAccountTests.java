@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.is;
 
 public class GetAccountTests {
 
@@ -46,6 +47,20 @@ public class GetAccountTests {
                 .when()
                 .get("/account/{username}", username)
                 .prettyPeek()
+                .then()
+                .statusCode(200);
+    }
+
+    @DisplayName("Позитивная расширенная проверка авторизации")
+    @Test
+    void getAccountInfoPositiveWithManyChecksTest () {
+        given()
+                .headers(headers)
+                .expect()
+                .body(CoreMatchers.containsString(username))
+                .body("success", is(true))
+                .when()
+                .get("/account/{username}", username)
                 .then()
                 .statusCode(200);
     }
