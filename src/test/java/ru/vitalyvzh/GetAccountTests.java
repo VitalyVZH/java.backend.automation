@@ -9,8 +9,8 @@ import static org.hamcrest.Matchers.is;
 
 public class GetAccountTests extends BaseTest {
 
-    @DisplayName("Позитивная проверка авторизации")
     @Test
+    @DisplayName("Позитивная проверка авторизации")
     void getAccountInfoPositiveTest () {
         given()
                 .headers("Authorization", token)
@@ -23,8 +23,8 @@ public class GetAccountTests extends BaseTest {
                 .statusCode(200);
     }
 
-    @DisplayName("Позитивная расширенная проверка авторизации")
     @Test
+    @DisplayName("Позитивная расширенная проверка авторизации")
     void getAccountInfoPositiveWithManyChecksTest () {
         given()
                 .headers("Authorization", token)
@@ -37,8 +37,8 @@ public class GetAccountTests extends BaseTest {
                 .statusCode(200);
     }
 
-    @DisplayName("Негативная проверка авторизации")
     @Test
+    @DisplayName("Негативная проверка авторизации")
     void getAccountInfoNegativeTest () {
         given()
                 .headers("Authorization", token)

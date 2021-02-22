@@ -1,5 +1,6 @@
 package ru.vitalyvzh;
 
+import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -13,6 +14,7 @@ public class BaseTest {
     static Properties properties = new Properties();
     static String token;
     static String username;
+    static String testurl;
 
     @BeforeAll
     static void beforeAll() {
@@ -21,9 +23,11 @@ public class BaseTest {
 
         token = properties.getProperty("token");
         username = properties.getProperty("username");
+        testurl = properties.getProperty("testurl");
 
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.baseURI = properties.getProperty("base.url");
+        RestAssured.filters(new AllureRestAssured());
     }
 
     static void loadProperties() {
