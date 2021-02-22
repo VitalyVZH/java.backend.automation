@@ -1,12 +1,7 @@
 package ru.vitalyvzh;
 
 import io.qameta.allure.Step;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Base64;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
@@ -14,26 +9,47 @@ import static org.hamcrest.Matchers.notNullValue;
 
 public class PostImageTests extends BaseTest {
 
-    static final String INPUT_IMAGE_FILE_PATH = "smile.jpg";
     private String uploadedImageId;
     private String fileString;
-
-    // Кодируем в BASE64 массив байтов
-    @BeforeEach
-    void setUp() {
-        byte[] fileContent = getFileContent();
-        fileString = Base64.getEncoder().encodeToString(fileContent);
-    }
+    private String path;
 
     @Test
     @DisplayName("Загрузка минимального по размеру изображения c помощью Base64")
     void uploadSmallFileTest() {
+        path = smallFile;
+        ByteToBase64 byteToBase = new ByteToBase64();
+        fileString = byteToBase.fileString(path);
+
         uploadedImageId = given()
                 .headers("Authorization", token)
                 .multiPart("image", fileString)
                 .expect()
                 .body("success", is(true))
                 .body("data.id", is(notNullValue()))
+                .when()
+                .post("/image")
+                .prettyPeek()
+                .then()
+                .contentType("application/json")
+                .extract()
+                .response()
+                .jsonPath()
+                .getString("data.deletehash");
+    }
+
+    @Test
+    @DisplayName("Загрузка не описанного в документации файла изображения c помощью Base64")
+    void uploadBigFileTest() {
+        path = bigIncorrectFile;
+        ByteToBase64 byteToBase = new ByteToBase64();
+        fileString = byteToBase.fileString(path);
+
+        uploadedImageId = given()
+                .headers("Authorization", token)
+                .multiPart("image", fileString)
+                .expect()
+                .body("success", is(false))
+                .body("status", is(400))
                 .when()
                 .post("/image")
                 .prettyPeek()
@@ -78,19 +94,5 @@ public class PostImageTests extends BaseTest {
                 .prettyPeek()
                 .then()
                 .statusCode(200);
-    }
-
-    // переводим файл в массив байтов
-    private byte[] getFileContent() {
-        ClassLoader classLoader = getClass().getClassLoader();
-        File inputFile = new File(classLoader.getResource(INPUT_IMAGE_FILE_PATH).getFile());
-
-        byte[] fileContent = new byte[0];
-        try {
-            fileContent = FileUtils.readFileToByteArray(inputFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return fileContent;
     }
 }

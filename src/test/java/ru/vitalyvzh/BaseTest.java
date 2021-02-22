@@ -15,6 +15,8 @@ public class BaseTest {
     static String token;
     static String username;
     static String testurl;
+    static String smallFile;
+    static String bigIncorrectFile;
 
     @BeforeAll
     static void beforeAll() {
@@ -24,6 +26,8 @@ public class BaseTest {
         token = properties.getProperty("token");
         username = properties.getProperty("username");
         testurl = properties.getProperty("testurl");
+        smallFile = properties.getProperty("small.file");
+        bigIncorrectFile = properties.getProperty("big.incorrect.file");
 
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.baseURI = properties.getProperty("base.url");
