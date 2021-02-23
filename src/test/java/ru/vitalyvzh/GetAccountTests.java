@@ -48,4 +48,18 @@ public class GetAccountTests extends BaseTest {
                 .then()
                 .statusCode(400);
     }
+
+    @Test
+    @DisplayName("Запрос на получение избражения без указания ID")
+    void getEmptyRequestTest() {
+        given()
+                .header("Autorization", token)
+                .expect()
+                .body("data.error", is("Authentication required"))
+                .body("status", is(401))
+                .when()
+                .get("/account/")
+                .prettyPeek()
+                .then();
+    }
 }

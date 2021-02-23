@@ -16,7 +16,7 @@ public class PostImageTests extends BaseTest {
 
     @Test
     @DisplayName("Загрузка минимального по размеру изображения c помощью Base64")
-    void uploadSmallFileTest() {
+    void uploadWithBase64SmallFileTest() {
         path = smallFile;
         ByteToBase64 byteToBase = new ByteToBase64();
         fileString = byteToBase.fileString(path);
@@ -40,7 +40,7 @@ public class PostImageTests extends BaseTest {
 
     @Test
     @DisplayName("Загрузка не описанного в документации файла изображения c помощью Base64")
-    void uploadBigFileTest() {
+    void uploadWithBase64BigFileTest() {
         path = bigIncorrectFile;
         ByteToBase64 byteToBase = new ByteToBase64();
         fileString = byteToBase.fileString(path);
@@ -82,6 +82,46 @@ public class PostImageTests extends BaseTest {
                 .response()
                 .jsonPath()
                 .getString("data.deletehash");
+    }
+
+    @Test
+    @DisplayName("Загрузка файла изображения не являющегося изображением c помощью Base64")
+    void uploadNegativeFileTest() {
+        path = brokenFile;
+        ByteToBase64 byteToBase = new ByteToBase64();
+        fileString = byteToBase.fileString(path);
+
+        uploadedImageId = given()
+                .headers("Authorization", token)
+                .multiPart("image", fileString)
+                .expect()
+                .body("success", is(false))
+                .body("status", is(400))
+                .when()
+                .post("/image")
+                .prettyPeek()
+                .then()
+                .contentType("application/json")
+                .extract()
+                .response()
+                .jsonPath()
+                .getString("data.deletehash");
+    }
+
+    @Test
+    @DisplayName("Загрузка изображения без авторизации")
+    void uploadWithoutTokenTest() {
+
+        given()
+                //.headers("Authorization", token)
+                .multiPart("image", testurl)
+                .expect()
+                .body("success", is(false))
+                .body("data.error", is("Authentication required"))
+                .when()
+                .post("/image")
+                .prettyPeek()
+                .then();
     }
 
 
