@@ -7,6 +7,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
+@DisplayName("Загрузка изображений на сервер")
 public class PostImageTests extends BaseTest {
 
     private String uploadedImageId;

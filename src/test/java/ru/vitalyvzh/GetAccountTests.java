@@ -7,11 +7,12 @@ import org.junit.jupiter.api.Test;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 
+@DisplayName("Авторизация на сервере")
 public class GetAccountTests extends BaseTest {
 
     @Test
     @DisplayName("Позитивная проверка авторизации")
-    void getAccountInfoPositiveTest () {
+    void getAccountInfoPositiveTest() {
         given()
                 .headers("Authorization", token)
                 .log()
@@ -25,7 +26,7 @@ public class GetAccountTests extends BaseTest {
 
     @Test
     @DisplayName("Позитивная расширенная проверка авторизации")
-    void getAccountInfoPositiveWithManyChecksTest () {
+    void getAccountInfoPositiveWithManyChecksTest() {
         given()
                 .headers("Authorization", token)
                 .expect()
@@ -39,7 +40,7 @@ public class GetAccountTests extends BaseTest {
 
     @Test
     @DisplayName("Негативная проверка авторизации")
-    void getAccountInfoNegativeTest () {
+    void getAccountInfoNegativeTest() {
         given()
                 .headers("Authorization", token)
                 .when()
