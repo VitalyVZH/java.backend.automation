@@ -1,14 +1,11 @@
 package ru.vitalyvzh;
 
 import io.restassured.RestAssured;
-import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.specification.RequestSpecification;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.vitalyvzh.dao.GetAccountResponse;
+import ru.vitalyvzh.utils.RandomId;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -19,25 +16,6 @@ import static org.hamcrest.Matchers.is;
 @DisplayName("Авторизация на сервере")
 public class GetAccountTests extends BaseTest {
 
-    static RequestSpecification requestWithoutAuth;
-
-
-//    @BeforeAll
-//    static void withoutAuthSpec() {
-//
-//        requestWithoutAuth = new RequestSpecBuilder()
-//                .addHeader("Autorization", "")
-//                .build();
-//    }
-
-
-//    @BeforeEach
-//    void setUp() {
-////        deleteHash = uploadCommonImage().getData().getDeletehash();
-//        RestAssured.responseSpecification = responseSpecification;
-//        RestAssured.requestSpecification = reqSpec;
-//    }
-
     @Test
     @DisplayName("Позитивная проверка авторизации")
     void getAccountInfoPositiveTest() {
@@ -46,8 +24,6 @@ public class GetAccountTests extends BaseTest {
         RestAssured.requestSpecification = reqSpec;
 
         GetAccountResponse response = given()
-//                .spec(reqSpec)
-//                .headers("Authorization", token)
                 .log()
                 .all()
                 .when()
@@ -57,57 +33,38 @@ public class GetAccountTests extends BaseTest {
                 .extract()
                 .body()
                 .as(GetAccountResponse.class);
-//                .statusCode(200);
-//                .spec(responseSpecification);
 
         assertThat(response.getStatus(), equalTo(200));
         assertThat(response.getData().getUrl(), equalTo("testprogmath"));
     }
 
     @Test
-    @DisplayName("Негативная проверка авторизации")
+    @DisplayName("Негативная проверка авторизации, с генерацией рандомного ID")
     void getAccountInfoNegativeTest() {
 
-        requestWithoutAuth = new RequestSpecBuilder()
-                .addHeader("Autorization", "")
-                .build();
+        RestAssured.requestSpecification  = requestWithoutAuth;
 
-        GetAccountResponse response = given()
-//                .spec(requestWithoutAuth)
-//                .headers("Authorization", token)
+        given()
+                .expect()
+                .body("data.error", is("Authentication required"))
+                .body("status", is(401))
                 .when()
-                .get(Endpoints.GET_ACCOUNT_REQUEST, username)
-                .then()
-                .extract()
-                .body()
-                .as(GetAccountResponse.class);
-
-        assertThat(response.getStatus(), equalTo(400));
-//        assertThat(response.getData().getUrl(), equalTo("testprogmath"));
-        assertThat(response.getSuccess(), equalTo(false));
+                .get(Endpoints.GET_ACCOUNT_REQUEST, RandomId.randomId())
+                .prettyPeek();
     }
 
     @Test
     @DisplayName("Запрос на получение избражения без указания ID")
     void getEmptyRequestTest() {
 
-        requestWithoutAuth = new RequestSpecBuilder()
-                .addHeader("Autorization", "")
-                .build();
+        RestAssured.requestSpecification  = requestWithoutAuth;
 
-        GetAccountResponse response = given()
-//                .header("Autorization", token)
+        given()
                 .expect()
-//                .body("data.error", is("A username is required."))
-//                .body("status", is(400))
+                .body("success", is(false))
+                .body("status", is(401))
                 .when()
                 .get(Endpoints.GET_ACCOUNT_WITHOUT_USERNAME_REQUEST)
-                .prettyPeek()
-                .then()
-                .extract()
-                .body()
-                .as(GetAccountResponse.class);
-
-        assertThat(response.getStatus(), equalTo(400));
+                .prettyPeek();
     }
 }

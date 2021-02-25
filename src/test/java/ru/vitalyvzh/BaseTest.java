@@ -26,6 +26,7 @@ public class BaseTest {
     static String brokenFile;
     static ResponseSpecification responseSpecification = null;
     static RequestSpecification reqSpec;
+    static RequestSpecification requestWithoutAuth;
 
     @BeforeAll
     static void beforeAll() {
@@ -53,11 +54,15 @@ public class BaseTest {
 //
         reqSpec = new RequestSpecBuilder()
                 .addHeader("Authorization", token)
-//                .setContentType(ContentType.JSON)
                 .build();
-//
+
+        requestWithoutAuth = new RequestSpecBuilder()
+                .addHeader("Autorization", "")
+                .build();
+
 //        RestAssured.responseSpecification  = responseSpecification;
 //        RestAssured.requestSpecification  = reqSpec;
+//        RestAssured.requestSpecification  = requestWithoutAuth;
 
     }
 

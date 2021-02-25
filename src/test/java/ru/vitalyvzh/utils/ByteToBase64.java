@@ -1,4 +1,4 @@
-package ru.vitalyvzh;
+package ru.vitalyvzh.utils;
 
 import java.util.Base64;
 

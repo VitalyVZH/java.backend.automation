@@ -1,4 +1,4 @@
-package ru.vitalyvzh;
+package ru.vitalyvzh.utils;
 
 import org.apache.commons.io.FileUtils;
 

@@ -2,11 +2,10 @@ package ru.vitalyvzh;
 
 import io.qameta.allure.Step;
 import io.restassured.RestAssured;
-import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.*;
-import ru.vitalyvzh.dao.GetAccountResponse;
 import ru.vitalyvzh.dao.image.PostImageResponse;
+import ru.vitalyvzh.utils.ByteToBase64;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -21,19 +20,6 @@ public class PostImageTests extends BaseTest {
     static RequestSpecification requestWithoutAuth;
     private String imageHash;
 
-//    @BeforeAll
-//    static void withoutAuthSpec() {
-//
-//        requestWithoutAuth = new RequestSpecBuilder()
-//                .addHeader("Autorization", "")
-//                .build();
-//    }
-
-//    @BeforeEach
-//    void setUp() {
-//        RestAssured.requestSpecification  = reqSpec;
-//    }
-
     @Test
     @DisplayName("Загрузка минимального по размеру изображения c помощью Base64")
     void uploadWithBase64SmallFileTest() {
@@ -45,26 +31,16 @@ public class PostImageTests extends BaseTest {
         fileString = byteToBase.fileString(path);
 
         PostImageResponse response = given()
-//                .headers("Authorization", token)
                 .multiPart("image", fileString)
-//                .expect()
-//                .body("success", is(true))
-//                .body("data.id", is(notNullValue()))
                 .when()
                 .post(Endpoints.POST_IMAGE_REQUEST)
                 .prettyPeek()
                 .then()
-//                .contentType("application/json")
-//                .extract()
-//                .response()
-//                .jsonPath()
-//                .getString("data.deletehash");
                 .extract()
                 .body()
                 .as(PostImageResponse.class);
 
         imageHash = response.getData().getId();
-//        assertThat(response.);
         assertThat(response.getStatus(), equalTo(200));
     }
 
@@ -79,7 +55,6 @@ public class PostImageTests extends BaseTest {
         fileString = byteToBase.fileString(path);
 
         uploadedImageId = given()
-//                .headers("Authorization", token)
                 .multiPart("image", fileString)
                 .expect()
                 .body("success", is(false))
@@ -93,6 +68,8 @@ public class PostImageTests extends BaseTest {
                 .response()
                 .jsonPath()
                 .getString("data.deletehash");
+
+        imageHash = uploadedImageId;
     }
 
     @Test
@@ -101,24 +78,20 @@ public class PostImageTests extends BaseTest {
 
         RestAssured.requestSpecification  = reqSpec;
 
-        uploadedImageId = given()
-//                .headers("Authorization", token)
+        PostImageResponse response = given()
                 .multiPart("image", testurl)
-                .expect()
-                .body("status", is(200))
-                .body("data.id", is(notNullValue()))
-                .body("data.width", is(480))
-                .body("data.height", is(480))
                 .when()
                 .post(Endpoints.POST_IMAGE_REQUEST)
                 .prettyPeek()
                 .then()
-                .contentType("application/json")
                 .extract()
-                .response()
-                .jsonPath()
-                .getString("data.deletehash");
-//        AssertThat()
+                .body()
+                .as(PostImageResponse.class);
+
+        imageHash = response.getData().getId();
+        assertThat(response.getStatus(), equalTo(200));
+        assertThat(response.getData().getWidth(), equalTo(480));
+        assertThat(response.getData().getHeight(), equalTo(480));
     }
 
     @Test
@@ -132,7 +105,6 @@ public class PostImageTests extends BaseTest {
         fileString = byteToBase.fileString(path);
 
         uploadedImageId = given()
-//                .headers("Authorization", token)
                 .multiPart("image", fileString)
                 .expect()
                 .body("success", is(false))
@@ -152,12 +124,9 @@ public class PostImageTests extends BaseTest {
     @DisplayName("Загрузка изображения без авторизации")
     void uploadWithoutTokenTest() {
 
-        requestWithoutAuth = new RequestSpecBuilder()
-                .addHeader("Autorization", "")
-                .build();
+        RestAssured.requestSpecification  = requestWithoutAuth;
 
         given()
-//                .headers("Authorization", token)
                 .multiPart("image", testurl)
                 .expect()
                 .body("success", is(false))
@@ -176,10 +145,8 @@ public class PostImageTests extends BaseTest {
 
         if(uploadedImageId != null) {
             given()
-//                .headers("Authorization", token)
                 .when()
-                .delete(Endpoints.POST_IMAGEHASH_REQUEST, imageHash)
-//                .delete(Endpoints.POST_IMAGEHASH_REQUEST, uploadedImageId)
+                .delete(Endpoints.IMAGEHASH_REQUEST, imageHash)
                 .prettyPeek()
                 .then()
                 .statusCode(200);

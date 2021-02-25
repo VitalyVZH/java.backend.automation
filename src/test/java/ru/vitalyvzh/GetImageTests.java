@@ -8,8 +8,8 @@ import ru.vitalyvzh.utils.ByteToBase64;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
-@DisplayName("Обновление существующего файла на сервере")
-public class UpdateImageTests extends BaseTest {
+@DisplayName("Запрос существующего файла на сервере")
+public class GetImageTests extends BaseTest {
 
     private String uploadedImageId;
     private String path;
@@ -42,20 +42,20 @@ public class UpdateImageTests extends BaseTest {
     }
 
     @Test
-    @DisplayName("Обновление файла")
-    void updateImageTest() {
+    @DisplayName("Запрос на получение избражения по imageHash")
+    void getEmptyRequestTest() {
 
         RestAssured.requestSpecification  = reqSpec;
 
         given()
-                .multiPart("image", testurl)
                 .expect()
                 .body("success", is(true))
-                .body("status", is(200))
+                .body("data.link", is(notNullValue()))
                 .when()
-                .post(Endpoints.IMAGEHASH_REQUEST, properties.getProperty("image.hash"))
+                .get(Endpoints.IMAGEHASH_REQUEST, properties.getProperty("image.hash"))
                 .prettyPeek();
     }
+
 
     @AfterEach
     @Step("Удаление файла изображения после теста")
