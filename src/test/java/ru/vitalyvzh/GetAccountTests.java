@@ -52,19 +52,4 @@ public class GetAccountTests extends BaseTest {
                 .get(Endpoints.GET_ACCOUNT_REQUEST, RandomId.randomId())
                 .prettyPeek();
     }
-
-    @Test
-    @DisplayName("Запрос на получение избражения без указания ID")
-    void getEmptyRequestTest() {
-
-        RestAssured.requestSpecification  = requestWithoutAuth;
-
-        given()
-                .expect()
-                .body("success", is(false))
-                .body("status", is(401))
-                .when()
-                .get(Endpoints.GET_ACCOUNT_WITHOUT_USERNAME_REQUEST)
-                .prettyPeek();
-    }
 }

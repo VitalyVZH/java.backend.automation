@@ -43,7 +43,7 @@ public class GetImageTests extends BaseTest {
 
     @Test
     @DisplayName("Запрос на получение избражения по imageHash")
-    void getEmptyRequestTest() {
+    void getImageRequestTest() {
 
         RestAssured.requestSpecification  = reqSpec;
 
@@ -56,6 +56,20 @@ public class GetImageTests extends BaseTest {
                 .prettyPeek();
     }
 
+    @Test
+    @DisplayName("Запрос на получение избражения без указания ID")
+    void getEmptyRequestTest() {
+
+        RestAssured.requestSpecification  = requestWithoutAuth;
+
+        given()
+                .expect()
+                .body("success", is(false))
+                .body("status", is(401))
+                .when()
+                .get(Endpoints.GET_ACCOUNT_WITHOUT_USERNAME_REQUEST)
+                .prettyPeek();
+    }
 
     @AfterEach
     @Step("Удаление файла изображения после теста")
