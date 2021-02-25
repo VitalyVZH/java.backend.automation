@@ -2,6 +2,12 @@ package ru.vitalyvzh;
 
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.http.ContentType;
+import io.restassured.specification.RequestSpecification;
+import io.restassured.specification.ResponseSpecification;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 
 import java.io.FileInputStream;
@@ -18,6 +24,8 @@ public class BaseTest {
     static String smallFile;
     static String bigIncorrectFile;
     static String brokenFile;
+    static ResponseSpecification responseSpecification = null;
+    static RequestSpecification reqSpec;
 
     @BeforeAll
     static void beforeAll() {
@@ -34,6 +42,23 @@ public class BaseTest {
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.baseURI = properties.getProperty("base.url");
         RestAssured.filters(new AllureRestAssured());
+
+        responseSpecification = new ResponseSpecBuilder()
+                .expectStatusCode(200)
+                .expectStatusLine("HTTP/1.1 200 OK")
+                .expectContentType(ContentType.JSON)
+                .expectResponseTime(Matchers.lessThan(5000L))
+                .expectHeader("Access-Control-Allow-Credentials", "true")
+                .build();
+//
+        reqSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", token)
+//                .setContentType(ContentType.JSON)
+                .build();
+//
+//        RestAssured.responseSpecification  = responseSpecification;
+//        RestAssured.requestSpecification  = reqSpec;
+
     }
 
     static void loadProperties() {

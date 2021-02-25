@@ -1,65 +1,113 @@
 package ru.vitalyvzh;
 
-import org.hamcrest.CoreMatchers;
+import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.specification.RequestSpecification;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import ru.vitalyvzh.dao.GetAccountResponse;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+@Slf4j
 @DisplayName("Авторизация на сервере")
 public class GetAccountTests extends BaseTest {
+
+    static RequestSpecification requestWithoutAuth;
+
+
+//    @BeforeAll
+//    static void withoutAuthSpec() {
+//
+//        requestWithoutAuth = new RequestSpecBuilder()
+//                .addHeader("Autorization", "")
+//                .build();
+//    }
+
+
+//    @BeforeEach
+//    void setUp() {
+////        deleteHash = uploadCommonImage().getData().getDeletehash();
+//        RestAssured.responseSpecification = responseSpecification;
+//        RestAssured.requestSpecification = reqSpec;
+//    }
 
     @Test
     @DisplayName("Позитивная проверка авторизации")
     void getAccountInfoPositiveTest() {
-        given()
-                .headers("Authorization", token)
+
+        RestAssured.responseSpecification = responseSpecification;
+        RestAssured.requestSpecification = reqSpec;
+
+        GetAccountResponse response = given()
+//                .spec(reqSpec)
+//                .headers("Authorization", token)
                 .log()
                 .all()
                 .when()
-                .get("/account/{username}", username)
+                .get(Endpoints.GET_ACCOUNT_REQUEST, username)
                 .prettyPeek()
                 .then()
-                .statusCode(200);
-    }
+                .extract()
+                .body()
+                .as(GetAccountResponse.class);
+//                .statusCode(200);
+//                .spec(responseSpecification);
 
-    @Test
-    @DisplayName("Позитивная расширенная проверка авторизации")
-    void getAccountInfoPositiveWithManyChecksTest() {
-        given()
-                .headers("Authorization", token)
-                .expect()
-                .body(CoreMatchers.containsString(username))
-                .body("success", is(true))
-                .when()
-                .get("/account/{username}", username)
-                .then()
-                .statusCode(200);
+        assertThat(response.getStatus(), equalTo(200));
+        assertThat(response.getData().getUrl(), equalTo("testprogmath"));
     }
 
     @Test
     @DisplayName("Негативная проверка авторизации")
     void getAccountInfoNegativeTest() {
-        given()
-                .headers("Authorization", token)
+
+        requestWithoutAuth = new RequestSpecBuilder()
+                .addHeader("Autorization", "")
+                .build();
+
+        GetAccountResponse response = given()
+//                .spec(requestWithoutAuth)
+//                .headers("Authorization", token)
                 .when()
-                .get("/account/{username}", username)
+                .get(Endpoints.GET_ACCOUNT_REQUEST, username)
                 .then()
-                .statusCode(400);
+                .extract()
+                .body()
+                .as(GetAccountResponse.class);
+
+        assertThat(response.getStatus(), equalTo(400));
+//        assertThat(response.getData().getUrl(), equalTo("testprogmath"));
+        assertThat(response.getSuccess(), equalTo(false));
     }
 
     @Test
     @DisplayName("Запрос на получение избражения без указания ID")
     void getEmptyRequestTest() {
-        given()
-                .header("Autorization", token)
+
+        requestWithoutAuth = new RequestSpecBuilder()
+                .addHeader("Autorization", "")
+                .build();
+
+        GetAccountResponse response = given()
+//                .header("Autorization", token)
                 .expect()
-                .body("data.error", is("Authentication required"))
-                .body("status", is(401))
+//                .body("data.error", is("A username is required."))
+//                .body("status", is(400))
                 .when()
-                .get("/account/")
+                .get(Endpoints.GET_ACCOUNT_WITHOUT_USERNAME_REQUEST)
                 .prettyPeek()
-                .then();
+                .then()
+                .extract()
+                .body()
+                .as(GetAccountResponse.class);
+
+        assertThat(response.getStatus(), equalTo(400));
     }
 }
