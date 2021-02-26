@@ -20,10 +20,6 @@ public class BaseTest {
     static Properties properties = new Properties();
     static String token;
     static String username;
-    static String testurl;
-    static String smallFile;
-    static String bigIncorrectFile;
-    static String brokenFile;
     static ResponseSpecification responseSpecification = null;
     static RequestSpecification reqSpec;
     static RequestSpecification requestWithoutAuth;
@@ -35,10 +31,6 @@ public class BaseTest {
 
         token = properties.getProperty("token");
         username = properties.getProperty("username");
-        testurl = properties.getProperty("test.url");
-        smallFile = properties.getProperty("small.file");
-        bigIncorrectFile = properties.getProperty("big.incorrect.file");
-        brokenFile = properties.getProperty("broken.file");
 
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.baseURI = properties.getProperty("base.url");
@@ -51,7 +43,7 @@ public class BaseTest {
                 .expectResponseTime(Matchers.lessThan(5000L))
                 .expectHeader("Access-Control-Allow-Credentials", "true")
                 .build();
-//
+
         reqSpec = new RequestSpecBuilder()
                 .addHeader("Authorization", token)
                 .build();
@@ -59,10 +51,6 @@ public class BaseTest {
         requestWithoutAuth = new RequestSpecBuilder()
                 .addHeader("Autorization", "")
                 .build();
-
-//        RestAssured.responseSpecification  = responseSpecification;
-//        RestAssured.requestSpecification  = reqSpec;
-//        RestAssured.requestSpecification  = requestWithoutAuth;
 
     }
 

@@ -2,6 +2,7 @@ package ru.vitalyvzh;
 
 import io.qameta.allure.Step;
 import io.restassured.RestAssured;
+import io.restassured.specification.MultiPartSpecification;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.*;
 import ru.vitalyvzh.dao.image.PostImageResponse;
@@ -21,16 +22,40 @@ public class PostImageTests extends BaseTest {
     private String imageHash;
 
     @Test
+    @DisplayName("Загрузка изображения c помощью Base64")
+    void uploadFileTest() {
+
+        RestAssured.requestSpecification  = reqSpec;
+
+        ByteToBase64 byteToBase = new ByteToBase64();
+        fileString = byteToBase.fileString(Images.POSITIVE.path);
+
+        PostImageResponse response = given()
+//                .spec(uploadReqSpec)
+                .multiPart("image", fileString)
+                .when()
+                .post(Endpoints.POST_IMAGE_REQUEST)
+                .prettyPeek()
+                .then()
+                .extract()
+                .body()
+                .as(PostImageResponse.class);
+
+        imageHash = response.getData().getId();
+        assertThat(response.getStatus(), equalTo(200));
+    }
+
+    @Test
     @DisplayName("Загрузка минимального по размеру изображения c помощью Base64")
     void uploadWithBase64SmallFileTest() {
 
         RestAssured.requestSpecification  = reqSpec;
 
-        path = smallFile;
         ByteToBase64 byteToBase = new ByteToBase64();
-        fileString = byteToBase.fileString(path);
+        fileString = byteToBase.fileString(Images.SMALL_SIZE.path);
 
         PostImageResponse response = given()
+//                .spec(uploadReqSpec)
                 .multiPart("image", fileString)
                 .when()
                 .post(Endpoints.POST_IMAGE_REQUEST)
@@ -50,9 +75,8 @@ public class PostImageTests extends BaseTest {
 
         RestAssured.requestSpecification  = reqSpec;
 
-        path = bigIncorrectFile;
         ByteToBase64 byteToBase = new ByteToBase64();
-        fileString = byteToBase.fileString(path);
+        fileString = byteToBase.fileString(Images.BIG_SIZE.path);
 
         uploadedImageId = given()
                 .multiPart("image", fileString)
@@ -79,7 +103,7 @@ public class PostImageTests extends BaseTest {
         RestAssured.requestSpecification  = reqSpec;
 
         PostImageResponse response = given()
-                .multiPart("image", testurl)
+                .multiPart("image", Images.POSITIVE_URL.path)
                 .when()
                 .post(Endpoints.POST_IMAGE_REQUEST)
                 .prettyPeek()
@@ -100,9 +124,8 @@ public class PostImageTests extends BaseTest {
 
         RestAssured.requestSpecification  = reqSpec;
 
-        path = brokenFile;
         ByteToBase64 byteToBase = new ByteToBase64();
-        fileString = byteToBase.fileString(path);
+        fileString = byteToBase.fileString(Images.NEGATIVE.path);
 
         uploadedImageId = given()
                 .multiPart("image", fileString)
@@ -127,7 +150,7 @@ public class PostImageTests extends BaseTest {
         RestAssured.requestSpecification  = requestWithoutAuth;
 
         given()
-                .multiPart("image", testurl)
+                .multiPart("image", Images.POSITIVE_URL)
                 .expect()
                 .body("success", is(false))
                 .body("status", is(401))

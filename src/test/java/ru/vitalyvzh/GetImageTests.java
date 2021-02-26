@@ -21,9 +21,8 @@ public class GetImageTests extends BaseTest {
 
         RestAssured.requestSpecification  = reqSpec;
 
-        path = smallFile;
         ByteToBase64 byteToBase = new ByteToBase64();
-        fileString = byteToBase.fileString(path);
+        fileString = byteToBase.fileString(Images.SMALL_SIZE.path);
 
         uploadedImageId = given()
                 .multiPart("image", fileString)
@@ -57,7 +56,7 @@ public class GetImageTests extends BaseTest {
     }
 
     @Test
-    @DisplayName("Запрос на получение избражения без указания ID")
+    @DisplayName("Запрос без указания ID")
     void getEmptyRequestTest() {
 
         RestAssured.requestSpecification  = requestWithoutAuth;

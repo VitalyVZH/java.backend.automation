@@ -21,9 +21,8 @@ public class UpdateImageTests extends BaseTest {
 
         RestAssured.requestSpecification  = reqSpec;
 
-        path = smallFile;
         ByteToBase64 byteToBase = new ByteToBase64();
-        fileString = byteToBase.fileString(path);
+        fileString = byteToBase.fileString(Images.SMALL_SIZE.path);
 
         uploadedImageId = given()
                 .multiPart("image", fileString)
@@ -48,7 +47,7 @@ public class UpdateImageTests extends BaseTest {
         RestAssured.requestSpecification  = reqSpec;
 
         given()
-                .multiPart("image", testurl)
+                .multiPart("image", Images.POSITIVE_URL)
                 .expect()
                 .body("success", is(true))
                 .body("status", is(200))
